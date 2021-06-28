@@ -1,0 +1,23 @@
+# Please refer https://aka.ms/HTTPSinContainer on how to setup an https developer certificate for your ASP .NET Core service.
+
+version: '3.7'
+
+services:
+
+  #sudo docker run --network="auth_net" -it --rm -p 6002:5000  auth:v1
+  server:
+    networks:
+      - signal_r_net
+    image: signal_r_chat_server
+    build:
+      context: .
+      dockerfile: ./DockerFile
+    ports:
+      - 7000:80
+
+#volumes: 
+#  db-data:
+#  auth-data:
+
+networks:
+    signal_r_net:
