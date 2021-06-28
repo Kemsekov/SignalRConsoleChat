@@ -28,30 +28,36 @@ namespace SignalRClient
         }
         protected async Task Closed(Exception error){
             if(error is not null){
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine(error.Message);
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    System.Console.WriteLine("Try to reconnect in 500 ms...");
-                    Console.ResetColor();
-                    await Task.Delay(500,source.Token);
-                    await connection.StartAsync(source.Token);
+                    consoleManager.WriteLine(error.Message,ConsoleColor.Red);
                 }
         }
         
         public async Task Start(string UserName){
             this.UserName = UserName;
-            Console.ForegroundColor = ConsoleColor.Green;
-            System.Console.WriteLine("Connecting to server...");
-            await connection.StartAsync();
-            System.Console.WriteLine("Connected!");
-            Console.ResetColor();
             consoleManager.Prefix = UserName;
+            
             consoleManager.WriteLeadLine();
-            while(connection.State!=HubConnectionState.Disconnected){
-                string message = consoleManager.ReadLine().Trim();
-                if(message=="/exit") break;
-                if(!string.IsNullOrWhiteSpace(message))
-                    await connection.SendAsync("Send",UserName,message,source.Token);
+            while(!source.Token.IsCancellationRequested){
+                while(connection.State==HubConnectionState.Connected){
+                    string message = consoleManager.ReadLine().Trim();
+                    if(message=="/exit"){
+                        Console.WriteLine("Exiting...",ConsoleColor.Green);
+                        return;
+                    }                     
+                    if(!string.IsNullOrWhiteSpace(message) && connection.State==HubConnectionState.Connected)
+                        await connection.SendAsync("Send",UserName,message,source.Token);
+                }
+                consoleManager.WriteLine("Connecting to server...",ConsoleColor.Green);
+            
+                while(connection.State!=HubConnectionState.Connected){
+                    try{
+                        connection.StartAsync(source.Token).Wait(2000);
+                    }
+                    catch(Exception){
+
+                    }
+                }
+                consoleManager.WriteLine("Connected!",ConsoleColor.Green);
             }
         }
         public async Task Stop(){
