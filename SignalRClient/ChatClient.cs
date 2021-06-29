@@ -30,6 +30,7 @@ namespace SignalRClient
             if(error is not null){
                     consoleManager.WriteLine(error.Message,ConsoleColor.Red);
                 }
+            await Task.FromResult(1);
         }
         
         public async Task Start(string UserName){
