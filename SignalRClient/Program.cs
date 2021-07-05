@@ -21,6 +21,7 @@ namespace SignalRClient
             app.HelpOption("-h|--help");
             app.VersionOption("--version","1.0.0");
             app.Option("-u","Username",CommandOptionType.SingleValue);
+            app.Option("-s","Server",CommandOptionType.SingleValue);
             try{
                 app.Execute(args);
             }
@@ -29,8 +30,9 @@ namespace SignalRClient
             }
 
             var name = app.Options.FirstOrDefault(opt=>opt.Template=="-u")?.Values.FirstOrDefault();
+            var server = app.Options.FirstOrDefault(opt=>opt.Template=="-s")?.Values.FirstOrDefault();
             if(name is not null){
-                using var chatClient = new ChatClient("http://localhost:7000/myhub");
+                using var chatClient = new ChatClient($"http://{server}/myhub");
                 Task.WaitAll(chatClient.Start(name));
             }
         }

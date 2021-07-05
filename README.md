@@ -6,6 +6,6 @@ Open `SignalRServer` folder and run
 ```docker-compose up```
 
 open `SignalRClient` folder and run
-```dotnet run USERNAME```
+```dotnet run -u USERNAME```
 
 You are welcome.
